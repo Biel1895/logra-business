@@ -1,0 +1,111 @@
+/* Logra Business */
+:root {
+  --logra-violet: #4f2bff;
+  --logra-lavender: #7c4dff;
+  --logra-mint: #00c281;
+  --logra-mint-soft: #bff5de;
+  --logra-ink: #1f2542;
+  --logra-fog: #e9ecf5;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: var(--font-sans);
+  --default-font-family: var(--font-sans);
+  --background: #f4f5fa;
+  --foreground: var(--logra-ink);
+  --surface: var(--logra-fog);
+  --card: #fff;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--logra-violet);
+  --primary-foreground: #fff;
+  --secondary: #eeebff;
+  --secondary-foreground: #341f84;
+  --muted: var(--logra-fog);
+  --muted-foreground: #515976;
+  --accent: #eae5ff;
+  --accent-foreground: #321f81;
+  --border: #dce0ee;
+  --input: #d7dbee;
+  --ring: var(--logra-violet);
+  --positive: #006b4c;
+  --positive-foreground: #fff;
+  --positive-soft: var(--logra-mint-soft);
+  --destructive: #ad243c;
+  --negative: var(--destructive);
+  --negative-soft: #ffebef;
+  --chart-1: #087c58;
+  --chart-2: var(--logra-violet);
+  --chart-3: #c64462;
+  --chart-4: #356bd3;
+  --chart-5: #7953e4;
+  --shadow-panel: 0 8px 24px #272a5010;
+  --logra-nav: #171b34;
+  --logra-nav-text: #e9ecf5;
+  --logra-nav-accent: #cdbdff;
+}
+:root.dark {
+  --background: #101329;
+  --foreground: #f0effc;
+  --surface: #171b34;
+  --card: #1c213c;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: #b7a0ff;
+  --primary-foreground: #151129;
+  --secondary: #2a2650;
+  --secondary-foreground: #e1d7ff;
+  --muted: #232946;
+  --muted-foreground: #b7bfdc;
+  --accent: #342861;
+  --accent-foreground: #f0e9ff;
+  --border: #373e5b;
+  --input: #424969;
+  --ring: #b7a0ff;
+  --positive: #6ce5ae;
+  --positive-foreground: #082b20;
+  --positive-soft: #183b36;
+  --destructive: #ff92a5;
+  --negative: var(--destructive);
+  --negative-soft: #40253a;
+  --chart-1: #6ce5ae;
+  --chart-2: #a684ff;
+  --chart-3: #ff92a5;
+  --chart-4: #81a7fc;
+  --chart-5: #c2a3ff;
+  --shadow-panel: 0 8px 24px #0507193d;
+}
+body { font-family: var(--font-sans); }
+.site-brand { letter-spacing: -.035em; }
+.site-brand .logra-product { color: var(--primary); font-weight: 750; }
+.site-brand small { letter-spacing: 0; }
+.logra-landing {
+  background: radial-gradient(ellipse at 90% 0%, #7c4dff21, transparent 54%), var(--background);
+}
+.logra-landing .site-home-kicker { font-weight: 750; }
+.logra-landing .site-home h1 { letter-spacing: -.045em; }
+.logra-landing .site-home-card > svg {
+  box-sizing: content-box;
+  padding: .45rem;
+  border-radius: .6rem;
+  background: var(--secondary);
+}
+.site-login { background: radial-gradient(ellipse at 50% 6%, #7c4dff26, transparent 60%), var(--surface); }
+.site-login-heading h1 { letter-spacing: -.035em; }
+.site-login-heading h1 strong { color: var(--primary); }
+#protected-page .site-header { background: var(--logra-nav); border-color: #343958; }
+#protected-page .site-brand { color: #fff; }
+#protected-page .site-brand .logra-product { color: var(--logra-nav-accent); }
+#protected-page .site-brand small, #user-email { color: #bbc2dd; }
+#protected-page .site-controls button { color: var(--logra-nav-text); border-color: #515878; }
+#protected-page .site-controls button:hover { background: #292f51; color: #fff; }
+#protected-page .site-controls button:focus-visible, #protected-page .site-nav a:focus-visible { outline-color: var(--logra-nav-accent); }
+.site-nav a { color: var(--logra-nav-text); }
+.site-nav a:hover { background: #292f51; color: #fff; }
+.site-nav a[aria-current="page"] { background: var(--logra-violet); color: #fff; }
+
+@media (max-width: 47.99rem) {
+  .site-nav { background: var(--logra-nav); border-color: #343958; }
+  .site-nav a[aria-current="page"] { color: #fff; background: #382868; }
+}
+

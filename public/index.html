@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Início · Logra Business</title>
+  <meta name="description" content="Vendas, despesas e estatísticas do caixa.">
+  <meta name="theme-color" content="#4f2bff">
+  <link rel="canonical" href="__SITE_ORIGIN__/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Logra Business">
+  <meta property="og:title" content="Logra Business">
+  <meta property="og:description" content="Vendas, manutenção e fechamento do caixa em um só lugar.">
+  <meta property="og:url" content="__SITE_ORIGIN__/">
+  <meta property="og:image" content="__SITE_ORIGIN__/assets/logra/compartilhar-business.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logra Business, gestão de caixa e operações, em fundo roxo.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/logra/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/logra/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/assets/logra/apple-touch-icon.png">
+  <link rel="stylesheet" href="./assets/fonts.css">
+  <link rel="stylesheet" href="./vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="./assets/layout.css">
+  <link rel="stylesheet" href="./assets/site.css">
+  <script defer src="./assets/caixa-store.js"></script>
+  <script defer src="./assets/js/comum/site.js"></script>
+  <script defer src="./assets/js/paginas/inicio.js"></script>
+  <script defer src="/assets/js/comum/pwa.js"></script>
+  <link rel="stylesheet" href="./assets/logra.css">
+</head>
+<body class="logra-landing">
+  <header class="site-home-header site-home-width d-flex align-items-center">
+    <a class="site-brand" href="./"><img class="site-brand-mark" src="/assets/logra/icon-192.png" width="36" height="36" alt=""><span>Logra <strong class="logra-product">Business</strong><small>Controle de Caixa</small></span></a>
+    <a class="site-button site-entry" data-cash-entry href="./auth/">Entrar</a>
+  </header>
+  <main class="site-home site-home-width">
+    <p class="site-home-kicker">Gestão de caixa e operações</p>
+    <h1>Todo o caixa da loja em uma tela simples de usar.</h1>
+    <p class="site-lead">Lance as vendas do dia, as saídas, os depósitos e feche o caixa conferindo o dinheiro em segundos. As estatísticas se atualizam sozinhas.</p>
+    <a class="site-button site-home-cta" data-cash-entry href="./auth/"><span>Começar agora</span><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg></a>
+    <button class="site-button site-button-secondary site-install" id="install-caixa" type="button" hidden>Instalar aplicativo</button>
+    <div class="site-home-cards">
+      <section class="site-card site-home-card">
+        <svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></svg>
+        <h2>Caixa do dia</h2>
+        <p>Vendas com dinheiro, PIX, débito, crédito, parcelas, troca de aparelho e financeiras.</p>
+      </section>
+      <section class="site-card site-home-card">
+        <svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>
+        <h2>Estatísticas</h2>
+        <p>Resultados por dia, semana, quinzena e mês, com comparação com o período anterior.</p>
+      </section>
+      <section class="site-card site-home-card">
+        <svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg>
+        <h2>Seus dados protegidos</h2>
+        <p>Acesse seus lançamentos com a sua conta, inclusive pelo celular.</p>
+      </section>
+    </div>
+  </main>
+  <div id="notifications" aria-live="polite"></div>
+</body>
+</html>

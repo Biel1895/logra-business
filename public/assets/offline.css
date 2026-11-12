@@ -1,0 +1,4 @@
+body { display: grid; place-items: center; min-height: 100dvh; margin: 0; background: #f4f5fa; color: #1f2542; font: 16px/1.5 "Inter", system-ui, sans-serif; }
+main { max-width: 24rem; margin: 1rem; padding: 1.5rem; border-radius: 1rem; background: #fff; }
+h1 { font-size: 1.5rem; }
+a { display: inline-block; padding: .55rem .9rem; border-radius: .55rem; background: #4f2bff; color: white; text-decoration: none; font-weight: 700; }

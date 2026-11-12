@@ -1,0 +1,123 @@
+/* Shared page structure, with gutters independent of the Bootstrap grid. */
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  color: var(--foreground);
+  text-decoration: none;
+  font: 700 1.125rem var(--font-display);
+}
+.site-brand-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: .75rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.site-brand-icon svg { width: 1.25rem; height: 1.25rem; }
+.site-brand-mark { flex: 0 0 auto; border-radius: .65rem; }
+.site-brand small { display: block; margin-top: .15rem; color: var(--muted-foreground); font: 500 .7rem var(--font-sans); }
+.site-page-status { max-width: 40rem; margin: 2rem auto; padding-inline: 1rem; color: var(--muted-foreground); }
+.site-install { margin-inline-start: .5rem; }
+.site-install[hidden] { display: none; }
+.site-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: .75rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  font: 700 .875rem/1.4 var(--font-sans);
+}
+.site-button:hover { color: var(--primary-foreground); filter: brightness(.93); }
+.site-button:focus-visible, .site-nav a:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.site-button svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+.site-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-panel);
+  color: var(--foreground);
+}
+.site-card p { color: var(--muted-foreground); }
+
+/* Home */
+.site-home-width { width: 100%; max-width: 64rem; margin-inline: auto; padding-inline: 1.25rem; }
+.site-home-header { min-height: 4rem; justify-content: space-between; gap: .75rem; }
+.site-home { padding-top: 3rem; padding-bottom: 6rem; }
+.site-home-kicker { margin: 0; color: var(--primary); font-size: .875rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.site-home h1 { max-width: 48rem; margin: 1rem 0 0; font: 700 3.75rem/1.05 var(--font-display); }
+.site-home .site-lead { max-width: 36rem; margin: 1.25rem 0 0; color: var(--muted-foreground); font-size: 1rem; line-height: 1.5; }
+.site-home-cta { margin-top: 2rem; padding: .75rem 1.5rem; border-radius: 1rem; }
+.site-home-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 4rem; }
+.site-home-card { padding: 1.5rem; }
+.site-home-card > svg { display: block; width: 1.5rem; height: 1.5rem; color: var(--primary); }
+.site-home-card h2 { margin: 1rem 0 .5rem; font: 700 1.125rem/1.55 var(--font-display); }
+.site-home-card p { margin: 0; font-size: .875rem; line-height: 1.625; }
+
+/* Login */
+.site-login { min-height: 100dvh; padding: 2.5rem 1rem; background: var(--surface); }
+.site-login-content { width: 100%; max-width: 24rem; }
+.site-login-heading { display: grid; justify-items: center; gap: .75rem; margin-bottom: 2rem; text-align: center; }
+.site-login-heading .site-brand-icon { width: 3rem; height: 3rem; }
+.site-login-heading .site-brand-icon svg { width: 1.5rem; height: 1.5rem; }
+.site-login-heading .site-brand-mark { width: 3rem; height: 3rem; }
+.site-login-heading h1 { margin: 0; font: 700 1.5rem var(--font-display); }
+.site-login-heading p { margin: 0; color: var(--muted-foreground); font-size: .875rem; }
+.site-login-card { padding: 1.5rem; }
+.site-login form { gap: .75rem; }
+.site-login .form-control { min-height: 2.75rem; background: var(--card); color: var(--foreground); border-color: var(--border); border-radius: .5rem; font-size: .875rem; }
+.site-login .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--border); }
+.site-login .site-button { min-height: 2.75rem; border-radius: .5rem; }
+.site-demo { margin: 1.25rem 0 0; text-align: center; font-size: .75rem; }
+
+/* Authenticated pages */
+.site-header { position: sticky; top: 0; z-index: 30; background: var(--background); border-bottom: 1px solid var(--border); }
+.site-topbar, .site-main { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 1rem; }
+.site-topbar { min-height: 4rem; gap: .75rem; }
+.site-nav, .site-controls { display: flex; align-items: center; gap: .25rem; }
+.site-nav { margin-inline-start: 1.5rem; }
+.site-nav a { padding: .5rem .75rem; color: var(--muted-foreground); border-radius: .5rem; text-decoration: none; white-space: nowrap; font-size: .875rem; font-weight: 500; }
+.site-nav a:hover, .site-nav a[aria-current] { color: var(--foreground); background: var(--secondary); }
+.site-nav a svg { display: none; width: 1.25rem; height: 1.25rem; }
+.site-controls { margin-inline-start: auto; gap: .65rem; }
+#user-email { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-foreground); font-size: .75rem; }
+.site-button-secondary { background: transparent; color: var(--muted-foreground); border-color: var(--border); border-radius: .5rem; padding: .45rem .65rem; }
+.site-button-secondary:hover { background: var(--secondary); color: var(--foreground); }
+.site-icon-button { width: 2.125rem; padding-inline: 0; }
+.site-sun, .dark .site-moon { display: none; }
+.dark .site-sun { display: block; }
+
+@media (max-width: 63.99rem) {
+  #user-email { display: none; }
+  .site-nav { margin-inline-start: .25rem; }
+  .site-nav a { padding-inline: .5rem; }
+}
+@media (max-width: 47.99rem) {
+  #protected-page { padding-bottom: 4.5rem; }
+  .site-nav {
+    position: fixed;
+    inset: auto 0 0;
+    margin: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--border);
+    background: var(--background);
+  }
+  .site-nav a { flex: 1 1 0; display: grid; justify-items: center; gap: .25rem; padding: .65rem .25rem; font-size: .75rem; }
+  .site-nav a svg { display: block; }
+  .site-nav a[aria-current] { color: var(--primary); background: transparent; }
+  #logout span { display: none; }
+}
+@media (max-width: 39.99rem) {
+  .site-home h1 { font-size: 2.25rem; }
+  .site-home-cards { grid-template-columns: minmax(0, 1fr); }
+  .site-home-header .site-brand { font-size: 1rem; }
+}

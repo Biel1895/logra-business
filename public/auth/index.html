@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Logra Business</title>
+  <meta name="description" content="Acesse sua conta local de teste.">
+  <meta name="theme-color" content="#4f2bff">
+  <meta name="robots" content="noindex">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/logra/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/logra/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/assets/logra/apple-touch-icon.png">
+  <link rel="stylesheet" href="../assets/fonts.css">
+  <link rel="stylesheet" href="../vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/layout.css">
+  <link rel="stylesheet" href="../assets/site.css">
+  <script defer src="../assets/caixa-store.js"></script>
+  <script defer src="../assets/js/comum/site.js"></script>
+  <script defer src="../assets/js/paginas/login.js"></script>
+  <script defer src="/assets/js/comum/pwa.js"></script>
+  <link rel="stylesheet" href="../assets/logra.css">
+</head>
+<body>
+  <main class="site-login d-flex align-items-center justify-content-center">
+    <div class="site-login-content">
+      <header class="site-login-heading">
+        <img class="site-brand-mark" src="/assets/logra/icon-192.png" width="36" height="36" alt="">
+        <h1>Logra <strong>Business</strong></h1>
+        <p>Entre para continuar o fechamento.</p>
+      </header>
+      <section class="site-card site-login-card" aria-label="Entrar no caixa">
+        <form id="login-form" class="d-grid">
+          <label class="visually-hidden" for="login-email">E-mail</label>
+          <input class="form-control" id="login-email" name="email" type="email" placeholder="E-mail" autocomplete="username" required>
+          <label class="visually-hidden" for="login-password">Senha</label>
+          <input class="form-control" id="login-password" name="password" type="password" placeholder="Senha" autocomplete="current-password" minlength="6" required>
+          <button class="site-button" type="submit">Entrar</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <div id="notifications" aria-live="polite"></div>
+</body>
+</html>
