@@ -29,12 +29,19 @@ function hasServiceAccessory(text) {
         return /^(?:(?:venda de|vendi)\s+)?(?:\d+\s*(?:x\s*)?)?(?:capas?|capinhas?|cases?|peliculas?|hidrogel|carregadores?|fones?(?: de ouvido)?|cabos? (?:usb|lightning|de carregamento))\b/.test(normalized);
     });
 }
+function serviceNeedsInterpretation(text) {
+    const normalized = text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+    const noCharge = /\b(?:sem cobranca|sem custo|sem valor|nao cobrei|nao cobrou)\b/g;
+    const details = normalized.replace(noCharge, "");
+    const payment = /r\$|\d+[.,]\d+|\b(?:pix|av|debito|credito|cartao|dinheiro|especie|pago|pagou|paguei|pagar|recebi|recebeu|pagamento|cobrei|cobrou|ficou|custou|valor|reais|pendente|entrada|sinal|custa|faltou|falta|preco)\b|\b(?:a vista|em aberto|a receber)\b|\b(?:por|deu)\s+\d+|\b\d+\s*x\s*\d+/;
+    const parts = /\b(?:pecas?|shoppcell|na loja)\b/;
+    return payment.test(details) || parts.test(details) || (details === normalized && /\b\d{3,8}\s*$/.test(details));
+}
 function salePaymentAmount(sale, key) {
     const amount = brl(sale[key] ?? 0);
     return key === "credit" && sale.installments > 0 ? amount + " · " + sale.installments + "x" : amount;
 }
-function SaleFields({ sale, setSale, recognized }) {
-    const show = (key) => !recognized || Boolean(recognized[key]);
+function SaleFields({ sale, setSale }) {
     const field = (key, title, full, control) => h("div", { className: full ? "cash-field cash-field-wide" : "cash-field" },
         h("label", { htmlFor: "sale-" + key }, title), control);
     const text = (key, title, placeholder) => field(key, title, true, h("input", {
@@ -47,11 +54,11 @@ function SaleFields({ sale, setSale, recognized }) {
         sale.kind === "SERVICO"
             ? text("product", "Manutenção", "Ex.: Troca de tela do iPhone XR")
             : text("product", "Produto", "Ex.: iPhone 14 128GB preto"),
-        sale.kind === "SERVICO" && show("service_parts") && field("service_parts", "Peças", true,
+        sale.kind === "SERVICO" && field("service_parts", "Peças", true,
             h("textarea", { id: "sale-service_parts", className: "cash-service-input", rows: 3, value: sale.service_parts || "",
                 onInput: (event) => setSale({ ...sale, service_parts: event.target.value }) })),
-        salePayments.filter(([key]) => key !== "trade_in" && show(key)).map(([key, title]) => {
-            if (key !== "credit" || !show("installments")) return money(key, title);
+        salePayments.filter(([key]) => key !== "trade_in").map(([key, title]) => {
+            if (key !== "credit") return money(key, title);
             return field(key, title, false, h("div", { className: "cash-credit-pair" },
                 h(MoneyInput, { id: "sale-credit", value: sale.credit, onChange: (amount) => setSale({ ...sale, credit: amount }) }),
                 h("div", { className: "cash-credit-count" },
@@ -60,11 +67,11 @@ function SaleFields({ sale, setSale, recognized }) {
                         onChange: (event) => setSale({ ...sale, installments: Number(event.target.value) }) }),
                     h("span", { "aria-hidden": "true" }, "x"))));
         }),
-        (show("trade_in_details") || show("trade_in")) && h("div", { className: "cash-trade-pair cash-field-wide" },
-            show("trade_in_details") && text("trade_in_details", "Aparelho recebido na troca", "Ex.: Galaxy A34 128GB"),
-            show("trade_in") && money("trade_in", "Valor do aparelho")),
+        h("div", { className: "cash-trade-pair cash-field-wide" },
+            text("trade_in_details", "Aparelho recebido na troca", "Ex.: Galaxy A34 128GB"),
+            money("trade_in", "Valor do aparelho")),
         money("pending_amount", "Valor pendente"),
-        (sale.kind === "PRODUTO" || show("note")) && text("note", "Observação", "Ex.: Parcelex a receber"));
+        text("note", "Observação", "Ex.: Parcelex a receber"));
 }
 function SaleDetails({ record }) {
     const pairs = [
@@ -140,22 +147,27 @@ function CaixaPage() {
         setSaleModal(null);
     }
     function fillSale(fields, kind, parts) {
-        fields = { ...fields, kind, ...(kind === "SERVICO" ? { service_parts: parts } : {}) };
+        fields = { ...fields, kind };
+        if (kind === "SERVICO") {
+            const lines = [parts, fields.service_parts].flatMap((value) => (value || "").split(/\r?\n/));
+            fields.service_parts = [...new Set(lines.map((line) => line.trim()).filter(Boolean))].join("\n");
+        }
         setSale({ ...emptySale, ...fields });
-        showSaleModal("review", fields);
+        showSaleModal("review");
     }
     const interpretAI = useMutation({
-        mutationFn: async ({ text, kind, parts, setError }) => {
+        mutationFn: async ({ text, kind, parts, setError, localError }) => {
             const { data } = await cashStore.auth.getSession();
             if (!data.session) throw new Error("Entre novamente para usar a IA.");
             const response = await fetch("/api/interpretar-venda", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: "Bearer " + data.session.access_token },
-                body: JSON.stringify({ text }),
+                body: JSON.stringify({ text, kind }),
             });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) {
-                setError((previous) => previous + " " + (result.error || "A IA está indisponível. Use o formato do exemplo ou lance manualmente."));
+                const message = result.error || "A IA está indisponível. Use o formato do exemplo ou lance manualmente.";
+                setError(response.status === 422 || !localError ? message : localError + " " + message);
                 return;
             }
             fillSale(result, kind, parts);
@@ -173,6 +185,11 @@ function CaixaPage() {
             const [description, payment, ...extra] = text.split("=");
             if (kind === "SERVICO" && !extra.length && !payment?.trim()) {
                 const product = description.trim();
+                if (serviceNeedsInterpretation(product)) {
+                    setError("");
+                    interpretAI.mutate({ text: product, kind, parts, setError });
+                    return;
+                }
                 if (!product && !parts) {
                     setError("Informe as peças ou descreva a manutenção.");
                     return;
@@ -183,8 +200,8 @@ function CaixaPage() {
             }
             setError("");
         } catch (error) {
-            setError(error.message);
-            interpretAI.mutate({ text, kind, parts, setError });
+            setError("");
+            interpretAI.mutate({ text, kind, parts, setError, localError: text.includes("=") ? error.message : "" });
         }
     }
     const saveSale = useMutation({
@@ -544,7 +561,7 @@ function CaixaPage() {
                     } : {
                         review: "Confirme a venda", manual: "Lançar venda manual", edit: "Editar venda", details: "Detalhes da venda",
                     })[saleModal.mode]),
-                    saleModal.mode === "review" && h("p", null, "Confira os dados antes de registrar no caixa.")),
+                    saleModal.mode === "review" && h("p", null, "Confira e complete os dados antes de registrar no caixa.")),
                 h("button", { type: "button", className: "cash-dialog-close", "aria-label": "Fechar",
                     disabled: saveSale.isPending || remove.isPending, onClick: closeSaleModal }, h(X, { className: "size-5" }))),
             saleModal.mode === "details"
@@ -563,7 +580,7 @@ function CaixaPage() {
                     if (!saveSale.isPending) saveSale.mutate();
                 } },
                     h("div", { className: "cash-dialog-body" },
-                        h(SaleFields, { sale, setSale, recognized: saleModal.mode === "review" ? saleModal.record : null }),
+                        h(SaleFields, { sale, setSale }),
                         saleFormError && h("p", { className: "cash-error", role: "alert" }, saleFormError)),
                     h("div", { className: "cash-dialog-footer" },
                         h("div", { className: "cash-dialog-total" }, h("span", null, "Total"), h("strong", null, brl(paymentTotal(sale)))),

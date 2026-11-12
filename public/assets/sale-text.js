@@ -1,10 +1,12 @@
 function interpretSale(text) {
-    const [description, payments, ...extra] = text.split("=");
-    if (!description.trim() || !payments?.trim() || extra.length) {
-        throw new Error("Escreva a descrição, o sinal = e os pagamentos separados por +.");
-    }
+    const [description, payments, scheduledPayment, ...extra] = text.split("=");
     const amount = "(?:\\d{1,3}(?:\\.\\d{3})+|\\d+)(?:,\\d{1,2})?";
     const money = "(?:r\\$\\s*)?(" + amount + ")";
+    const scheduledCard = scheduledPayment?.trim().match(new RegExp(
+        "^(?:.+?\\s+)?vai\\s+passar\\s+(?:o\\s+)?cart[aã]o(?:\\s+de\\s+cr[eé]dito)?\\s+(?:em\\s+)?(\\d+)\\s*x\\s*(?:de\\s+)?" + money + "$", "i"));
+    if (!description.trim() || !payments?.trim() || extra.length || (scheduledPayment !== undefined && !scheduledCard)) {
+        throw new Error("Escreva a descrição, o sinal = e os pagamentos separados por +.");
+    }
     const methods = {
         pix: "pix", dinheiro: "cash", "a vista": "cash", av: "cash", especie: "cash", debito: "debit",
         credito: "credit", "cartao de credito": "credit", payjoy: "payjoy", "pay joy": "payjoy",
@@ -20,8 +22,11 @@ function interpretSale(text) {
     const amounts = {};
     const tradeDetails = [];
     const notes = new Set();
+    function toCents(value) {
+        return Math.round(Number(value.replace(/\./g, "").replace(",", ".")) * 100);
+    }
     function addAmount(field, value) {
-        const cents = Math.round(Number(value.replace(/\./g, "").replace(",", ".")) * 100);
+        const cents = toCents(value);
         const total = (amounts[field] ?? 0) + cents;
         if (!Number.isSafeInteger(total) || cents <= 0) throw new Error("Use valores positivos em reais.");
         amounts[field] = total;
@@ -42,6 +47,30 @@ function interpretSale(text) {
     }
     if (depth) throw new Error("Confira os parênteses do valor da troca.");
     segments.push(payments.slice(start));
+
+    if (scheduledCard) {
+        const installmentCount = Number(scheduledCard[1]);
+        const pendingCents = installmentCount * toCents(scheduledCard[2]);
+        if (!Number.isSafeInteger(pendingCents) || pendingCents <= 0) {
+            throw new Error("Confira o valor e a quantidade de parcelas pendentes.");
+        }
+        const devices = segments.map((segment) => segment.trim());
+        const isDevice = (device) => /\p{L}/u.test(device) || /^\d{1,2}\s+\d{2,4}$/.test(device);
+        if (!devices.every((device) => isDevice(device.match(tradePattern)?.[1].trim() ?? device))) {
+            throw new Error("Descreva os aparelhos recebidos na troca.");
+        }
+        const valuedDevices = devices.map((device) => device.match(tradePattern));
+        if (valuedDevices.every(Boolean)) {
+            for (const device of valuedDevices) addAmount("trade_in", device[2]);
+            sale.trade_in = amounts.trade_in / 100;
+            sale.trade_in_details = valuedDevices.map((device) => device[1].trim()).join(" + ");
+        } else {
+            sale.trade_in_details = devices.join(" + ");
+        }
+        sale.pending_amount = pendingCents / 100;
+        sale.note = scheduledPayment.trim();
+        return sale;
+    }
 
     for (const segment of segments) {
         const original = segment.trim();
