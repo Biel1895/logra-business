@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,22 +30,73 @@
   <script defer src="/assets/js/comum/pwa.js"></script>
   <link rel="stylesheet" href="../assets/logra.css">
 </head>
+
 <body>
   <p id="page-loading" class="site-page-status" role="status">Conferindo sua sessão…</p>
   <div id="protected-page" hidden>
     <header class="site-header">
       <div class="site-topbar d-flex align-items-center">
-        <a class="site-brand" href="../caixa/"><img class="site-brand-mark" src="/assets/logra/icon-192.png" width="36" height="36" alt=""><span>Logra <strong class="logra-product">Business</strong><small>Controle de Caixa</small></span></a>
+        <a class="site-brand" href="../caixa/"><img class="site-brand-mark" src="/assets/logra/icon-192.png" width="36"
+            height="36" alt=""><span>Logra <strong class="logra-product">Business</strong><small>Controle de
+              Caixa</small></span></a>
         <nav class="site-nav" aria-label="Menu principal">
-          <a href="../caixa/" aria-current="page"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg><span>Caixa do dia</span></a>
-          <a href="../estatisticas/"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg><span>Estatísticas</span></a>
-          <a href="../auditoria/"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg><span>Histórico</span></a>
-          <a href="../exportar/"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M8 13h2" /><path d="M14 13h2" /><path d="M8 17h2" /><path d="M14 17h2" /></svg><span>Exportar</span></a>
+          <a href="../caixa/" aria-current="page"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="7" height="7" x="3" y="3" rx="1" />
+              <rect width="7" height="7" x="14" y="3" rx="1" />
+              <rect width="7" height="7" x="14" y="14" rx="1" />
+              <rect width="7" height="7" x="3" y="14" rx="1" />
+            </svg><span>Caixa do dia</span></a>
+          <a href="../estatisticas/"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+              <path d="M18 17V9" />
+              <path d="M13 17V5" />
+              <path d="M8 17v-3" />
+            </svg><span>Estatísticas</span></a>
+          <a href="../auditoria/"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path
+                d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg><span>Histórico</span></a>
+          <a href="../exportar/"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path
+                d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+              <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+              <path d="M8 13h2" />
+              <path d="M14 13h2" />
+              <path d="M8 17h2" />
+              <path d="M14 17h2" />
+            </svg><span>Exportar</span></a>
         </nav>
         <div class="site-controls">
           <span id="user-email"></span>
-          <button type="button" class="site-button site-button-secondary site-icon-button" id="theme-toggle" aria-label="Alternar tema"><svg class="site-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg><svg class="site-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg></button>
-          <button type="button" class="site-button site-button-secondary" id="logout" aria-label="Sair"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg><span>Sair</span></button>
+          <button type="button" class="site-button site-button-secondary site-icon-button" id="theme-toggle"
+            aria-label="Alternar tema"><svg class="site-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path
+                d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
+            </svg><svg class="site-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" />
+              <path d="M12 20v2" />
+              <path d="m4.93 4.93 1.41 1.41" />
+              <path d="m17.66 17.66 1.41 1.41" />
+              <path d="M2 12h2" />
+              <path d="M20 12h2" />
+              <path d="m6.34 17.66-1.41 1.41" />
+              <path d="m19.07 4.93-1.41 1.41" />
+            </svg></button>
+          <button type="button" class="site-button site-button-secondary" id="logout" aria-label="Sair"><svg class=""
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" aria-hidden="true">
+              <path d="m16 17 5-5-5-5" />
+              <path d="M21 12H9" />
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            </svg><span>Sair</span></button>
         </div>
       </div>
     </header>
@@ -55,12 +107,12 @@
         <div class="cash-chat-thread">
           <div class="cash-chat-bubble">
             <p>Me conte o que você vendeu e como recebeu. Eu organizo os campos para você conferir.</p>
-            <button id="sale-example" type="button" class="cash-chat-example">Usar exemplo</button>
           </div>
         </div>
         <form id="sale-form" class="cash-chat-composer">
           <label class="visually-hidden" for="sale-text">Descreva a venda</label>
-          <textarea id="sale-text" rows="3" maxlength="1500" placeholder="Ex.: iPhone 14 preto = 1500 12x + 300 pix"></textarea>
+          <textarea id="sale-text" rows="3" maxlength="1500"
+            placeholder="Ex.: iPhone 14 preto = 1500 12x + 300 pix"></textarea>
           <div class="cash-chat-actions">
             <button id="sale-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar</button>
             <button id="manual-sale" type="button" class="cash-action">Lançar manual</button>
@@ -76,7 +128,7 @@
             <div>
               <label for="service-parts">Peças <span>Opcional</span></label>
               <textarea id="service-parts" class="cash-service-input" rows="3" maxlength="1500"
-                placeholder="Tela XR · loja&#10;Vidro traseiro XR · Shoppcell · R$ 40 pendente"></textarea>
+                placeholder="Tela XR loja&#10;Vidro traseiro XR Shoppcell R$ 40 pendente"></textarea>
             </div>
             <div>
               <label for="service-text">Manutenção e pagamento</label>
@@ -84,7 +136,8 @@
                 placeholder="Troca de tela e vidro traseiro do iPhone XR = 515,00 pix"></textarea>
             </div>
           </div>
-          <button id="service-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar serviço</button>
+          <button id="service-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar
+            serviço</button>
           <p id="service-status" class="cash-error cash-service-status" role="status"></p>
         </form>
         <div data-page-view="services"></div>
@@ -96,4 +149,5 @@
   </div>
   <div id="notifications" aria-live="polite"></div>
 </body>
+
 </html>

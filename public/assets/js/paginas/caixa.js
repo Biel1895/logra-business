@@ -21,7 +21,6 @@ const salePayments = [
     ["credit", "Crédito"], ["trade_in", "Troca de aparelho"],
     ["payjoy", "PayJoy"], ["other_finance", "Outras financeiras"],
 ];
-const saleExample = "iPhone 14 128GB preto + case = 1500 12x + 300 pix + A34 128GB (300)";
 const serviceAccessoryMessage = "Lance acessórios em Vendas do dia. Nesta seção, registre apenas a manutenção.";
 function hasServiceAccessory(text) {
     return text.split(/[+;\n]/).some((item) => {
@@ -61,7 +60,7 @@ function SaleFields({ sale, setSale, recognized }) {
         (show("trade_in_details") || show("trade_in")) && h("div", { className: "cash-trade-pair cash-field-wide" },
             show("trade_in_details") && text("trade_in_details", "Aparelho recebido na troca", "Ex.: Galaxy A34 128GB"),
             show("trade_in") && money("trade_in", "Valor do aparelho")),
-        show("note") && text("note", "Observação", "Ex.: Parcelex a receber"));
+        (sale.kind === "PRODUTO" || show("note")) && text("note", "Observação", "Ex.: Parcelex a receber"));
 }
 function SaleDetails({ record }) {
     const pairs = [
@@ -417,7 +416,6 @@ function CaixaPage() {
             changeSale(text) { setSaleText(text); setSaleTextError(""); setSaleChatStatus(""); },
             changeService(text) { setServiceText(text); setServiceTextError(""); },
             changeParts(text) { setServiceParts(text); setServiceTextError(""); },
-            useExample() { setSaleText(saleExample); },
             reviewSale() { if (saleText.trim() && !interpretAI.isPending) reviewSale(saleText); },
             reviewService() { if (serviceText.trim() && !interpretAI.isPending) reviewSale(serviceText, "SERVICO", serviceParts.trim()); },
             manualSale() { setSale({ ...emptySale }); showSaleModal("manual"); },

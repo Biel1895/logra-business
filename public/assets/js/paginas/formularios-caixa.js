@@ -22,12 +22,6 @@ function bindCashForms(controls) {
     const manual = get("manual-sale");
     manual.disabled = controls.pending;
     manual.onclick = controls.manualSale;
-    const example = get("sale-example");
-    example.disabled = controls.pending || Boolean(controls.saleText.trim());
-    example.onclick = () => {
-        controls.useExample();
-        get("sale-text").focus();
-    };
     const saleStatus = get("sale-status");
     saleStatus.textContent = controls.pending && controls.saleTextError ? "Organizando a venda…" :
         controls.saleTextError || controls.saleChatStatus;

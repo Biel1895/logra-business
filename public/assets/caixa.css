@@ -58,8 +58,6 @@
   color: var(--foreground);
   font-size: .9rem;
 }
-.cash-chat-example { margin-top: .25rem; font-size: .8rem; font-weight: 700; text-decoration: underline; text-underline-offset: .2em; }
-.cash-chat-example:disabled { opacity: .55; }
 .cash-chat-composer {
   min-width: 0;
   background: var(--background);
@@ -207,7 +205,7 @@
 .cash-trade-pair > .cash-field-wide { grid-column: auto; }
 .cash-trade-pair > div:only-of-type { grid-column: 1 / -1; }
 .cash-detail-grid > .cash-trade-pair { align-items: stretch; }
-.cash-action:focus-visible, .cash-sale-row:focus-visible, .cash-dialog-close:focus-visible, .cash-chat-example:focus-visible {
+.cash-action:focus-visible, .cash-sale-row:focus-visible, .cash-dialog-close:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
