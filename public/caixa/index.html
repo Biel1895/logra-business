@@ -126,18 +126,21 @@
         <form id="service-form" class="cash-services-form">
           <div class="cash-services-fields">
             <div>
-              <label for="service-parts">Peças <span>Opcional</span></label>
+              <label for="service-parts">Peças</label>
               <textarea id="service-parts" class="cash-service-input" rows="3" maxlength="1500"
                 placeholder="Tela XR loja&#10;Vidro traseiro XR Shoppcell R$ 40 pendente"></textarea>
             </div>
             <div>
-              <label for="service-text">Manutenção e pagamento</label>
+              <label for="service-text">Manutenção <span>Pagamento opcional</span></label>
               <textarea id="service-text" class="cash-service-input" rows="3" maxlength="1500"
                 placeholder="Troca de tela e vidro traseiro do iPhone XR = 515,00 pix"></textarea>
             </div>
           </div>
-          <button id="service-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar
-            serviço</button>
+          <p class="text-muted small mb-0">Informe as peças, a manutenção ou ambos.</p>
+          <div class="cash-chat-actions">
+            <button id="service-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar serviço</button>
+            <button id="manual-service" type="button" class="cash-action" aria-label="Lançar serviço manualmente">Lançar manual</button>
+          </div>
           <p id="service-status" class="cash-error cash-service-status" role="status"></p>
         </form>
         <div data-page-view="services"></div>

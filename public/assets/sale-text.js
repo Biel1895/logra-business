@@ -8,6 +8,7 @@ function interpretSale(text) {
     const methods = {
         pix: "pix", dinheiro: "cash", "a vista": "cash", av: "cash", especie: "cash", debito: "debit",
         credito: "credit", "cartao de credito": "credit", payjoy: "payjoy", "pay joy": "payjoy",
+        pendente: "pending_amount", "a receber": "pending_amount",
         parcelex: "other_finance", odreas: "other_finance", financiamento: "other_finance", "outras financeiras": "other_finance",
     };
     const names = "(" + Object.keys(methods).join("|") + ")";

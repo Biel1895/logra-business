@@ -14,6 +14,7 @@ const emptySale = {
     trade_in_details: "",
     payjoy: 0,
     other_finance: 0,
+    pending_amount: 0,
     note: "",
 };
 const salePayments = [
@@ -43,7 +44,9 @@ function SaleFields({ sale, setSale, recognized }) {
     const money = (key, title) => field(key, title, false,
         h(MoneyInput, { id: "sale-" + key, value: sale[key], onChange: (amount) => setSale({ ...sale, [key]: amount }) }));
     return h("div", { className: "cash-field-grid" },
-        text("product", sale.kind === "SERVICO" ? "Manutenção" : "Produto", "Ex.: iPhone 14 128GB preto"),
+        sale.kind === "SERVICO"
+            ? text("product", "Manutenção", "Ex.: Troca de tela do iPhone XR")
+            : text("product", "Produto", "Ex.: iPhone 14 128GB preto"),
         sale.kind === "SERVICO" && show("service_parts") && field("service_parts", "Peças", true,
             h("textarea", { id: "sale-service_parts", className: "cash-service-input", rows: 3, value: sale.service_parts || "",
                 onInput: (event) => setSale({ ...sale, service_parts: event.target.value }) })),
@@ -60,6 +63,7 @@ function SaleFields({ sale, setSale, recognized }) {
         (show("trade_in_details") || show("trade_in")) && h("div", { className: "cash-trade-pair cash-field-wide" },
             show("trade_in_details") && text("trade_in_details", "Aparelho recebido na troca", "Ex.: Galaxy A34 128GB"),
             show("trade_in") && money("trade_in", "Valor do aparelho")),
+        money("pending_amount", "Valor pendente"),
         (sale.kind === "PRODUTO" || show("note")) && text("note", "Observação", "Ex.: Parcelex a receber"));
 }
 function SaleDetails({ record }) {
@@ -70,9 +74,10 @@ function SaleDetails({ record }) {
     ];
     const detail = (title, value) => h("div", { key: title }, h("dt", null, title), h("dd", null, value));
     return h("div", null,
-        h("p", { className: "cash-detail-product" }, record.product || "Venda sem descrição"),
+        h("p", { className: "cash-detail-product" }, record.product || (record.kind === "SERVICO" ? "Registro de peças" : "Venda sem descrição")),
         h("dl", { className: "cash-detail-grid" },
             pairs.filter(Boolean).map(([title, value]) => detail(title, value)),
+            record.pending_amount > 0 && detail("Valor pendente", brl(record.pending_amount)),
             record.service_parts?.trim() && h("div", { className: "cash-field-wide cash-service-parts" },
                 h("dt", null, "Peças"), h("dd", null, record.service_parts)),
             (record.trade_in_details?.trim() || record.trade_in > 0) && h("div", { className: "cash-trade-pair cash-field-wide" },
@@ -165,7 +170,17 @@ function CaixaPage() {
             return;
         }
         try {
-            fillSale(interpretSale(text), kind, parts);
+            const [description, payment, ...extra] = text.split("=");
+            if (kind === "SERVICO" && !extra.length && !payment?.trim()) {
+                const product = description.trim();
+                if (!product && !parts) {
+                    setError("Informe as peças ou descreva a manutenção.");
+                    return;
+                }
+                fillSale({ product }, kind, parts);
+            } else {
+                fillSale(interpretSale(text), kind, parts);
+            }
             setError("");
         } catch (error) {
             setError(error.message);
@@ -183,19 +198,30 @@ function CaixaPage() {
                 if (hasNewAccessory) throw new Error(serviceAccessoryMessage);
             }
             const total = Math.round(paymentTotal(sale) * 100) / 100;
-            if (salePayments.some(([key]) => !Number.isFinite(sale[key]) || sale[key] < 0)) {
+            if (!Number.isFinite(total) || salePayments.some(([key]) => !Number.isFinite(sale[key]) || sale[key] < 0)) {
                 throw new Error("Confira os valores dos pagamentos.");
             }
             if (!Number.isSafeInteger(sale.installments) || sale.installments < 0 || (sale.installments && sale.credit <= 0)) {
                 throw new Error("Informe as parcelas junto com um valor no crédito.");
             }
-            if (!sale.product.trim() || !Number.isFinite(total) || total <= 0) {
-                throw new Error("Preencha o produto ou serviço e um valor de venda positivo.");
+            const pendingCents = Math.round(sale.pending_amount * 100);
+            if (!Number.isSafeInteger(pendingCents) || sale.pending_amount < 0) {
+                throw new Error("Informe um valor pendente válido.");
             }
+            const pendingAmount = pendingCents / 100;
+            const product = sale.product.trim();
+            const parts = sale.service_parts?.trim() || "";
+            const isService = sale.kind === "SERVICO";
+            if (isService && !product && !parts) throw new Error("Informe as peças ou descreva a manutenção.");
+            if (!isService && (!product || (total <= 0 && pendingAmount <= 0))) {
+                throw new Error("Preencha o produto e informe um pagamento ou valor pendente.");
+            }
+            const values = { ...sale, product, total, pending_amount: pendingAmount, sale_date: date };
+            if (isService) values.service_parts = parts;
             if (editingSale) {
                 const { error } = await cashStore
                     .from("sales")
-                    .update({ ...sale, total, sale_date: date })
+                    .update(values)
                     .eq("id", editingSale);
                 if (error)
                     throw error;
@@ -203,7 +229,7 @@ function CaixaPage() {
             else {
                 const { error } = await cashStore
                     .from("sales")
-                    .insert({ ...sale, total, sale_date: date, user_id: await userId() });
+                    .insert({ ...values, user_id: await userId() });
                 if (error)
                     throw error;
             }
@@ -417,7 +443,12 @@ function CaixaPage() {
             changeService(text) { setServiceText(text); setServiceTextError(""); },
             changeParts(text) { setServiceParts(text); setServiceTextError(""); },
             reviewSale() { if (saleText.trim() && !interpretAI.isPending) reviewSale(saleText); },
-            reviewService() { if (serviceText.trim() && !interpretAI.isPending) reviewSale(serviceText, "SERVICO", serviceParts.trim()); },
+            reviewService() {
+                if ((serviceText.trim() || serviceParts.trim()) && !interpretAI.isPending) {
+                    reviewSale(serviceText, "SERVICO", serviceParts.trim());
+                }
+            },
+            manualService() { setSale({ ...emptySale, kind: "SERVICO", service_parts: "" }); showSaleModal("manual"); },
             manualSale() { setSale({ ...emptySale }); showSaleModal("manual"); },
         },
         overview: h("div", { className: "cash-overview" },
@@ -482,11 +513,12 @@ function CaixaPage() {
                         onClick: () => showSaleModal("details", record) },
                         h("span", { className: "cash-sale-description" },
                             h("strong", null, record.product || "Venda sem descrição"),
+                            record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
                             h("span", { className: "cash-sale-payments" },
                                 salePayments.filter(([key]) => record[key] > 0).map(([key, title]) => h("span", { key, className: "cash-sale-payment" },
                                     h("span", null, title),
                                     h("strong", null, salePaymentAmount(record, key)))))),
-                        h("strong", { className: "cash-sale-amount" }, brl(record.total)),
+                        h("strong", { className: "cash-sale-amount" }, record.total > 0 || !record.pending_amount ? brl(record.total) : "A receber"),
                         h(ArrowRight, { className: "size-4", "aria-hidden": "true" })))),
                 !visibleSales.length && h("li", { className: "cash-sale-empty" }, sales.isLoading ? "Carregando vendas…" : "Nenhuma venda para esta data e filtros."))),
         services: services.length > 0 && h("ul", { className: "cash-service-list", "aria-label": "Serviços lançados" },
@@ -494,10 +526,11 @@ function CaixaPage() {
                     h("button", { type: "button", className: "cash-service-record", disabled: interpretAI.isPending,
                         onClick: () => showSaleModal("details", record) },
                         h("span", { className: "cash-service-record-body" },
-                            h("strong", null, record.product || "Serviço"),
+                            h("strong", null, record.product || "Registro de peças"),
+                            record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
                             record.service_parts?.trim() && h("span", { className: "cash-service-record-parts" },
                                 "Peças · ", record.service_parts.trim().split(/\r?\n/).filter((part) => part.trim()).join(" · "))),
-                        h("strong", { className: "cash-service-total" }, brl(record.total)),
+                        h("strong", { className: "cash-service-total" }, record.total > 0 ? brl(record.total) : record.pending_amount > 0 ? "A receber" : "Sem pagamento"),
                         h(ArrowRight, { className: "size-4", "aria-hidden": "true" }))))),
         dialog: saleModal && h("dialog", { id: "cash-sale-dialog", className: "cash-dialog", "aria-labelledby": "cash-sale-title",
             onCancel: (event) => {
@@ -507,7 +540,7 @@ function CaixaPage() {
             h("div", { className: "cash-dialog-header" },
                 h("div", null,
                     h("h2", { id: "cash-sale-title" }, ((saleModal.mode === "details" ? saleModal.record : sale).kind === "SERVICO" ? {
-                        review: "Confirme o serviço", edit: "Editar serviço", details: "Detalhes do serviço",
+                        review: "Confirme o serviço", manual: "Lançar serviço manual", edit: "Editar serviço", details: "Detalhes do serviço",
                     } : {
                         review: "Confirme a venda", manual: "Lançar venda manual", edit: "Editar venda", details: "Detalhes da venda",
                     })[saleModal.mode]),

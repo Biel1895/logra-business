@@ -26,6 +26,7 @@ async function fetchSales(start, end) {
         trade_in: num(r.trade_in),
         payjoy: num(r.payjoy),
         other_finance: num(r.other_finance),
+        pending_amount: num(r.pending_amount),
     }));
 }
 async function fetchExpenses(start, end) {

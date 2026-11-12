@@ -17,11 +17,15 @@ function bindCashForms(controls) {
     bindText("service-text", controls.serviceText, controls.changeService);
     bindText("service-parts", controls.serviceParts, controls.changeParts);
     bindSubmit("sale-form", "sale-submit", controls.reviewSale, controls.pending || !controls.saleText.trim());
-    bindSubmit("service-form", "service-submit", controls.reviewService, controls.pending || !controls.serviceText.trim());
+    const hasServiceContent = Boolean(controls.serviceText.trim() || controls.serviceParts.trim());
+    bindSubmit("service-form", "service-submit", controls.reviewService, controls.pending || !hasServiceContent);
 
     const manual = get("manual-sale");
     manual.disabled = controls.pending;
     manual.onclick = controls.manualSale;
+    const manualService = get("manual-service");
+    manualService.disabled = controls.pending;
+    manualService.onclick = controls.manualService;
     const saleStatus = get("sale-status");
     saleStatus.textContent = controls.pending && controls.saleTextError ? "Organizando a venda…" :
         controls.saleTextError || controls.saleChatStatus;

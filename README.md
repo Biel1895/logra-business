@@ -6,6 +6,7 @@ Projeto único para publicar o caixa na Vercel com autenticação e dados no Sup
 
 1. Acesse [Supabase Dashboard](https://supabase.com/dashboard), crie um projeto e aguarde a configuração.
 2. No projeto, abra **SQL Editor → New query**. Copie todo o conteúdo de `supabase/001_caixa.sql`, cole e clique em **Run**. Execute uma vez. O script cria as tabelas `caixa_*`, as regras de acesso por conta e o histórico automático. Se essas tabelas já existirem em outro projeto, confira a estrutura antes de executar.
+   Em novas consultas, execute as migrações na ordem: `supabase/002_servicos_sem_pagamento.sql` e `supabase/003_valor_pendente.sql`. Se o projeto já tem o 001 e o 002, execute apenas o 003 para liberar o valor pendente em vendas e serviços.
 3. Em **Authentication → Users**, use a opção de criar um usuário com e-mail e senha. Use uma conta real para entrar no Logra Business. Se a conta exigir confirmação de e-mail, confirme-a antes do primeiro login. Para restringir o caixa às contas que você cria, desative **Allow new users to sign up** nas configurações de autenticação.
 4. No painel **Connect** do projeto, copie a **Project URL** e a chave **Publishable**, que começa com `sb_publishable_`. O site usa essa chave pública com a sessão do usuário. Nenhuma chave `service_role` ou `sb_secret_` é necessária.
 

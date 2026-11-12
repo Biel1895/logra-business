@@ -23,6 +23,7 @@ function dayRows(day, sales, expenses, movements, closing) {
         "Outras financeiras",
         "Observação",
         "Peças do serviço",
+        "Valor pendente",
     ]);
     if (sales.length === 0)
         rows.push(["Nenhuma venda lançada."]);
@@ -42,6 +43,7 @@ function dayRows(day, sales, expenses, movements, closing) {
             money(s.other_finance),
             s.note ?? "",
             s.service_parts ?? "",
+            money(s.pending_amount ?? 0),
         ]);
     }
     rows.push([
@@ -58,6 +60,8 @@ function dayRows(day, sales, expenses, movements, closing) {
         money(sum(sales, (s) => s.payjoy)),
         money(sum(sales, (s) => s.other_finance)),
         "",
+        "",
+        money(sum(sales, (s) => s.pending_amount ?? 0)),
     ]);
     rows.push([]);
     rows.push(["SAÍDAS / DESPESAS"]);
@@ -157,6 +161,7 @@ function ExportarPage() {
                     { wch: 18 },
                     { wch: 30 },
                     { wch: 34 },
+                    { wch: 16 },
                 ];
                 XLSX.utils.book_append_sheet(wb, ws, day.split("-").reverse().join("-"));
                 exported++;
