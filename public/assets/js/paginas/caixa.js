@@ -41,6 +41,40 @@ function salePaymentAmount(sale, key) {
     const amount = brl(sale[key] ?? 0);
     return key === "credit" && sale.installments > 0 ? amount + " · " + sale.installments + "x" : amount;
 }
+function PaymentPreview({ record }) {
+    const payments = salePayments.filter(([key]) => record[key] > 0);
+    if (!payments.length) return null;
+    return h("span", { className: "cash-payment-preview" },
+        payments.map(([key, title]) => h("span", { key, className: "cash-payment-preview-item" },
+            h("span", null, title), h("strong", null, salePaymentAmount(record, key)))));
+}
+function DailyPaymentList({ title, titleId, filterId, records, isLoading, loadingText, emptyText, className, listClass, renderRow }) {
+    const [filters, setFilters] = useState([]);
+    const [expanded, setExpanded] = useState(false);
+    const visible = records.filter((record) => !filters.length || filters.some((key) => record[key] > 0));
+    const filterButton = (key, text, active, onClick) => h("button", {
+        key, type: "button", "aria-pressed": String(active), onClick,
+        className: `h-9 rounded-lg px-3 text-sm font-semibold transition-colors ${active
+            ? "bg-primary text-primary-foreground"
+            : "border border-border text-muted-foreground hover:bg-secondary"}`,
+    }, text);
+    return h("section", { className, "aria-labelledby": titleId },
+        h("div", { className: "cash-sales-heading" },
+            h("h2", { id: titleId, className: "font-display text-lg font-semibold" }, title),
+            h("button", { type: "button", className: "cash-action cash-filter-toggle", "aria-expanded": String(expanded),
+                "aria-controls": filterId, onClick: () => setExpanded((open) => !open) },
+                "Filtros", filters.length > 0 && h("span", { className: "cash-filter-count" }, filters.length),
+                h("span", { className: "cash-filter-chevron", "aria-hidden": "true" }))),
+        h("div", { id: filterId, className: "cash-sale-filters", "data-expanded": String(expanded) },
+            h("div", { className: "flex flex-wrap items-center gap-2", role: "group", "aria-label": "Filtrar por pagamento" },
+                h("span", { className: label }, "Pagamento"),
+                filterButton("all", "Todos", !filters.length, () => setFilters([])),
+                [...salePayments, ["pending_amount", "Pendente"]].map(([key, text]) =>
+                    filterButton(key, text, filters.includes(key), () => setFilters((current) =>
+                        current.includes(key) ? current.filter((value) => value !== key) : [...current, key]))))),
+        h("ul", { className: listClass }, visible.map(renderRow),
+            !visible.length && h("li", { className: "cash-sale-empty" }, isLoading ? loadingText : emptyText)));
+}
 function SaleFields({ sale, setSale }) {
     const field = (key, title, full, control) => h("div", { className: full ? "cash-field cash-field-wide" : "cash-field" },
         h("label", { htmlFor: "sale-" + key }, title), control);
@@ -120,9 +154,6 @@ function CaixaPage() {
     const [editingExpense, setEditingExpense] = useState(null);
     const [movement, setMovement] = useState({ ...emptyMovement });
     const [editingMovement, setEditingMovement] = useState(null);
-    const [paymentFilters, setPaymentFilters] = useState([]);
-    const [saleFiltersOpen, setSaleFiltersOpen] = useState(false);
-    const activeSaleFilters = paymentFilters.length;
     const [opening, setOpening] = useState(null);
     const [counted, setCounted] = useState(null);
     const [editingOpening, setEditingOpening] = useState(false);
@@ -381,22 +412,7 @@ function CaixaPage() {
     const saleRows = sales.data ?? [];
     const expenseRows = expenses.data ?? [];
     const movementRows = movements.data ?? [];
-    const visibleSales = saleRows.filter((s) => {
-        if (s.kind === "SERVICO")
-            return false;
-        if (paymentFilters.length === 0)
-            return true;
-        const map = {
-            DINHEIRO: s.cash,
-            PIX: s.pix,
-            DEBITO: s.debit,
-            CREDITO: s.credit,
-            TROCA: s.trade_in,
-            PAYJOY: s.payjoy,
-            OUTRAS_FINANCEIRAS: s.other_finance,
-        };
-        return paymentFilters.some((key) => map[key] > 0);
-    });
+    const products = saleRows.filter((record) => record.kind !== "SERVICO");
     const services = saleRows.filter((record) => record.kind === "SERVICO");
     const openingValue = opening ?? closing.data?.opening_balance ?? 0;
     const countedValue = counted ?? closing.data?.counted_cash ?? 0;
@@ -497,58 +513,37 @@ function CaixaPage() {
                 h(Stat, { title: "Saídas / despesas", value: brl(totals.saidas), tone: "out" }),
                 h(Stat, { title: "Resultado", value: brl(totals.liquido) }),
                 h(Stat, { title: "Caixa à vista", value: brl(totals.teorico) })))),
-        sales: h("section", { className: card, "aria-labelledby": "cash-sales-title" },
-            h("div", { className: "cash-sales-heading" },
-                h("h2", { id: "cash-sales-title", className: "font-display text-lg font-semibold" }, "Vendas do dia"),
-                h("button", { type: "button", className: "cash-action cash-filter-toggle", "aria-expanded": String(saleFiltersOpen),
-                    "aria-controls": "cash-sale-filters", onClick: () => setSaleFiltersOpen((open) => !open) },
-                    "Filtros", activeSaleFilters > 0 && h("span", { className: "cash-filter-count" }, activeSaleFilters),
-                    h("span", { className: "cash-filter-chevron", "aria-hidden": "true" }))),
-            h("div", { id: "cash-sale-filters", className: "cash-sale-filters", "data-expanded": String(saleFiltersOpen) },
-                h("div", { className: "flex flex-wrap items-center gap-2" },
-                    h("span", { className: label }, "Pagamento"),
-                    h("button", { "aria-pressed": String(paymentFilters.length === 0), onClick: () => setPaymentFilters([]), className: `h-9 rounded-lg px-3 text-sm font-semibold transition-colors ${paymentFilters.length === 0
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border text-muted-foreground hover:bg-secondary"}` }, "Todos"),
-                    [
-                        { key: "DINHEIRO", label: "À vista" },
-                        { key: "PIX", label: "PIX" },
-                        { key: "DEBITO", label: "Débito" },
-                        { key: "CREDITO", label: "Crédito" },
-                        { key: "TROCA", label: "Troca" },
-                        { key: "PAYJOY", label: "PayJoy" },
-                        { key: "OUTRAS_FINANCEIRAS", label: "Outras financeiras" },
-                    ].map((f) => {
-                        const active = paymentFilters.includes(f.key);
-                        return (h("button", { key: f.key, "aria-pressed": String(active), onClick: () => setPaymentFilters((prev) => active ? prev.filter((k) => k !== f.key) : [...prev, f.key]), className: `h-9 rounded-lg px-3 text-sm font-semibold transition-colors ${active
-                                ? "bg-primary text-primary-foreground"
-                                : "border border-border text-muted-foreground hover:bg-secondary"}` }, f.label));
-                    }))),
-            h("ul", { className: "cash-sale-list" },
-                visibleSales.map((record) => h("li", { key: record.id },
-                    h("button", { type: "button", className: "cash-sale-row", disabled: interpretAI.isPending,
-                        onClick: () => showSaleModal("details", record) },
-                        h("span", { className: "cash-sale-description" },
-                            h("strong", null, record.product || "Venda sem descrição"),
-                            record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
-                            h("span", { className: "cash-sale-payments" },
-                                salePayments.filter(([key]) => record[key] > 0).map(([key, title]) => h("span", { key, className: "cash-sale-payment" },
-                                    h("span", null, title),
-                                    h("strong", null, salePaymentAmount(record, key)))))),
-                        h("strong", { className: "cash-sale-amount" }, record.total > 0 || !record.pending_amount ? brl(record.total) : "A receber"),
-                        h(ArrowRight, { className: "size-4", "aria-hidden": "true" })))),
-                !visibleSales.length && h("li", { className: "cash-sale-empty" }, sales.isLoading ? "Carregando vendas…" : "Nenhuma venda para esta data e filtros."))),
-        services: services.length > 0 && h("ul", { className: "cash-service-list", "aria-label": "Serviços lançados" },
-                services.map((record) => h("li", { key: record.id },
-                    h("button", { type: "button", className: "cash-service-record", disabled: interpretAI.isPending,
-                        onClick: () => showSaleModal("details", record) },
-                        h("span", { className: "cash-service-record-body" },
-                            h("strong", null, record.product || "Registro de peças"),
-                            record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
-                            record.service_parts?.trim() && h("span", { className: "cash-service-record-parts" },
-                                "Peças · ", record.service_parts.trim().split(/\r?\n/).filter((part) => part.trim()).join(" · "))),
-                        h("strong", { className: "cash-service-total" }, record.total > 0 ? brl(record.total) : record.pending_amount > 0 ? "A receber" : "Sem pagamento"),
-                        h(ArrowRight, { className: "size-4", "aria-hidden": "true" }))))),
+        sales: h(DailyPaymentList, {
+            title: "Vendas do dia", titleId: "cash-sales-title", filterId: "cash-sale-filters", className: card,
+            records: products, isLoading: sales.isLoading, loadingText: "Carregando vendas…",
+            emptyText: "Nenhuma venda para esta data e filtros.", listClass: "cash-sale-list",
+            renderRow: (record) => h("li", { key: record.id },
+                h("button", { type: "button", className: "cash-sale-row", disabled: interpretAI.isPending,
+                    onClick: () => showSaleModal("details", record) },
+                    h("span", { className: "cash-sale-description" },
+                        h("strong", null, record.product || "Venda sem descrição"),
+                        record.note?.trim() && h("span", { className: "cash-sale-note" }, record.note.trim()),
+                        record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
+                        h(PaymentPreview, { record })),
+                    h("strong", { className: "cash-sale-amount" }, record.total > 0 || !record.pending_amount ? brl(record.total) : "A receber"),
+                    h(ArrowRight, { className: "size-4", "aria-hidden": "true" }))),
+        }),
+        services: h(DailyPaymentList, {
+            title: "Serviços lançados", titleId: "cash-service-list-title", filterId: "cash-service-filters",
+            className: "cash-service-results", records: services, isLoading: sales.isLoading, loadingText: "Carregando serviços…",
+            emptyText: "Nenhum serviço para esta data e filtros.", listClass: "cash-service-list",
+            renderRow: (record) => h("li", { key: record.id },
+                h("button", { type: "button", className: "cash-service-record", disabled: interpretAI.isPending,
+                    onClick: () => showSaleModal("details", record) },
+                    h("span", { className: "cash-service-record-body" },
+                        h("strong", null, record.product || "Registro de peças"),
+                        record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
+                        record.service_parts?.trim() && h("span", { className: "cash-service-record-parts" },
+                            "Peças · ", record.service_parts.trim().split(/\r?\n/).filter((part) => part.trim()).join(" · ")),
+                        h(PaymentPreview, { record })),
+                    h("strong", { className: "cash-service-total" }, record.total > 0 ? brl(record.total) : record.pending_amount > 0 ? "A receber" : "Sem pagamento"),
+                    h(ArrowRight, { className: "size-4", "aria-hidden": "true" }))),
+        }),
         dialog: saleModal && h("dialog", { id: "cash-sale-dialog", className: "cash-dialog", "aria-labelledby": "cash-sale-title",
             onCancel: (event) => {
                 event.preventDefault();

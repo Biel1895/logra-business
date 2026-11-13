@@ -126,11 +126,11 @@
 }
 .cash-sale-row:hover:not(:disabled) { background: var(--secondary); }
 .cash-sale-description { display: grid; gap: .15rem; overflow-wrap: anywhere; }
-.cash-sale-description span, .cash-sale-empty { color: var(--muted-foreground); font-size: .8rem; }
-.cash-sale-payments { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-top: .1rem; }
-.cash-sale-description .cash-sale-payment { display: grid; color: var(--muted-foreground); font-size: .72rem; line-height: 1.25; }
-.cash-sale-description .cash-sale-payment > span { font-size: inherit; }
-.cash-sale-payment strong { font-size: .66rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cash-sale-note, .cash-sale-empty { color: var(--muted-foreground); font-size: .8rem; }
+.cash-sale-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cash-payment-preview { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-top: .1rem; }
+.cash-payment-preview-item { display: grid; color: var(--muted-foreground); font-size: .72rem; line-height: 1.25; }
+.cash-payment-preview-item strong { font-size: .66rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .cash-sale-empty { text-align: center; padding: 1.25rem .5rem; }
 .cash-sale-amount { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .cash-dialog {
@@ -178,7 +178,8 @@
 .cash-service-parts { white-space: pre-wrap; overflow-wrap: anywhere; }
 .cash-service-input { display: block; width: 100%; min-height: 4.75rem; border: 1px solid var(--border); border-radius: .65rem; background: var(--background); color: var(--foreground); padding: .6rem .7rem; resize: vertical; }
 .cash-service-input:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
-.cash-service-list { display: grid; gap: .4rem; margin-top: .9rem; padding-top: .85rem; border-top: 1px solid var(--border); }
+.cash-service-results { margin-top: .9rem; padding-top: .85rem; border-top: 1px solid var(--border); }
+.cash-service-list { display: grid; gap: .4rem; margin-top: .85rem; }
 .cash-service-record { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .65rem; width: 100%; padding: .65rem .75rem; border-radius: .65rem; background: var(--secondary); text-align: left; font-size: .875rem; }
 .cash-service-record:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--border); }
 .cash-service-record:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -213,7 +214,7 @@
 .cash-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 640px) {
   .cash-filter-toggle { display: inline-flex; }
-  .cash-sale-payments { display: none; }
+  .cash-payment-preview, .cash-sale-note { display: none; }
   .cash-sale-filters[data-expanded="false"] { display: none; }
   .cash-sale-filters { flex-direction: column; align-items: stretch; padding-top: .65rem; border-top: 1px solid var(--border); }
   .cash-sale-filters > div > span { flex-basis: 100%; }
