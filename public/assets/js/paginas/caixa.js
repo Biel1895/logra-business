@@ -46,7 +46,7 @@ function PaymentPreview({ record }) {
     const payments = salePayments.filter(([key]) => record[key] > 0 || (key === "trade_in" && record.trade_in_details?.trim()));
     if (!payments.length) return null;
     return h("span", { className: "cash-payment-preview" },
-        payments.map(([key, title]) => h("span", { key, className: "cash-payment-preview-item" },
+        payments.map(([key, title]) => h("span", { key, className: "cash-payment-preview-item" + (key === "trade_in" ? " cash-payment-preview-trade" : "") },
             h("span", null, title),
             key === "trade_in" && record.trade_in_details?.trim() && h("span", { className: "cash-payment-preview-device" }, record.trade_in_details.trim()),
             record[key] > 0 && h("strong", null, salePaymentAmount(record, key)))));
@@ -477,6 +477,16 @@ function CaixaPage() {
     const loadFailed = dailyQueries.some((query) => query.error);
     const dailyReady = dailyQueries.every((query) => !query.error && !query.isLoading);
     const balanceBusy = saveOpening.isPending || saveClosing.isPending;
+    const dateBusy = interpretAI.isPending || balanceBusy;
+    function changeDate(value) {
+        setDate(value || todayISO());
+        setOpening(null);
+        setCounted(null);
+        setEditingOpening(false);
+        setSaleTextError("");
+        setServiceTextError("");
+        setSaleChatStatus("");
+    }
     return {
         controls: {
             saleText, serviceText, serviceParts, saleTextError, serviceTextError, saleChatStatus,
@@ -496,15 +506,15 @@ function CaixaPage() {
         overview: h("div", { className: "cash-overview" },
           h("div", { className: "cash-overview-heading" },
             h("h1", null, "Caixa do dia"),
-            h("input", { type: "date", value: date, onChange: (e) => {
-                    setDate(e.target.value || todayISO());
-                    setOpening(null);
-                    setCounted(null);
-                    setEditingOpening(false);
-                    setSaleTextError("");
-                    setServiceTextError("");
-                    setSaleChatStatus("");
-                }, disabled: interpretAI.isPending || balanceBusy, "aria-label": "Data do caixa", className: "cash-overview-date" })),
+            h("div", { className: "cash-date-navigation", role: "group", "aria-label": "Navegar pelas datas do caixa" },
+                h("button", { type: "button", className: "cash-action cash-date-step cash-date-previous", disabled: dateBusy,
+                    "aria-label": "Dia anterior", title: "Dia anterior", onClick: () => changeDate(addDays(date, -1)) },
+                    h(ArrowRight, { className: "size-4", "aria-hidden": "true" })),
+                h("input", { type: "date", value: date, onChange: (event) => changeDate(event.target.value),
+                    disabled: dateBusy, "aria-label": "Data do caixa", className: "cash-overview-date" }),
+                h("button", { type: "button", className: "cash-action cash-date-step", disabled: dateBusy,
+                    "aria-label": "Próximo dia", title: "Próximo dia", onClick: () => changeDate(addDays(date, 1)) },
+                    h(ArrowRight, { className: "size-4", "aria-hidden": "true" })))),
           loadFailed && h("p", { className: "cash-error", role: "alert" }, "Não foi possível atualizar todos os dados do dia. Confira a conexão antes de fechar o caixa."),
           h("section", { className: "cash-overview-panel", "aria-label": "Resumo do caixa" },
             h("div", { className: "cash-opening" },
