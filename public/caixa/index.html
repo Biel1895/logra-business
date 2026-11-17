@@ -111,8 +111,9 @@
         </div>
         <form id="sale-form" class="cash-chat-composer">
           <label class="visually-hidden" for="sale-text">Descreva a venda</label>
-          <textarea id="sale-text" rows="3" maxlength="1500"
+          <textarea id="sale-text" rows="3" maxlength="1500" aria-describedby="sale-keyboard-hint"
             placeholder="Ex.: iPhone 14 preto = 1500 12x + 300 pix"></textarea>
+          <p id="sale-keyboard-hint" class="cash-composer-hint">Enter para conferir · Shift + Enter para nova linha.</p>
           <div class="cash-chat-actions">
             <button id="sale-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar</button>
             <button id="manual-sale" type="button" class="cash-action">Lançar manual</button>
@@ -127,12 +128,12 @@
           <div class="cash-services-fields">
             <div>
               <label for="service-parts">Peças</label>
-              <textarea id="service-parts" class="cash-service-input" rows="3" maxlength="1500"
+              <textarea id="service-parts" class="cash-service-input" rows="3" maxlength="1500" aria-describedby="service-keyboard-hint"
                 placeholder="Tela XR loja&#10;Vidro traseiro XR Shoppcell R$ 40 pendente"></textarea>
             </div>
             <div>
               <label for="service-text">Manutenção <span>Pagamento opcional</span></label>
-              <textarea id="service-text" class="cash-service-input" rows="3" maxlength="1500"
+              <textarea id="service-text" class="cash-service-input" rows="3" maxlength="1500" aria-describedby="service-keyboard-hint"
                 placeholder="Troca de tela e vidro traseiro do iPhone XR = 515,00 pix"></textarea>
             </div>
           </div>
@@ -141,6 +142,7 @@
             <button id="service-submit" type="submit" class="cash-action cash-action-primary" disabled>Lançar serviço</button>
             <button id="manual-service" type="button" class="cash-action" aria-label="Lançar serviço manualmente">Lançar manual</button>
           </div>
+          <p id="service-keyboard-hint" class="cash-composer-hint">Enter para conferir · Shift + Enter para nova linha.</p>
           <p id="service-status" class="cash-error cash-service-status" role="status"></p>
         </form>
         <div data-page-view="services"></div>

@@ -11,6 +11,11 @@ function bindCashForms(controls) {
             event.preventDefault();
             if (!disabled) action();
         };
+        get(formId).onkeydown = (event) => {
+            if (event.target.tagName !== "TEXTAREA" || event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229) return;
+            event.preventDefault();
+            if (!disabled && !event.repeat) get(formId).requestSubmit();
+        };
         get(buttonId).disabled = disabled;
     }
     bindText("sale-text", controls.saleText, controls.changeSale);

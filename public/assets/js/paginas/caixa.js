@@ -29,24 +29,27 @@ function hasServiceAccessory(text) {
         return /^(?:(?:venda de|vendi)\s+)?(?:\d+\s*(?:x\s*)?)?(?:capas?|capinhas?|cases?|peliculas?|hidrogel|carregadores?|fones?(?: de ouvido)?|cabos? (?:usb|lightning|de carregamento))\b/.test(normalized);
     });
 }
-function serviceNeedsInterpretation(text) {
+function launchNeedsInterpretation(text, kind) {
     const normalized = text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
     const noCharge = /\b(?:sem cobranca|sem custo|sem valor|nao cobrei|nao cobrou)\b/g;
     const details = normalized.replace(noCharge, "");
     const payment = /r\$|\d+[.,]\d+|\b(?:pix|av|debito|credito|cartao|dinheiro|especie|pago|pagou|paguei|pagar|recebi|recebeu|pagamento|cobrei|cobrou|ficou|custou|valor|reais|pendente|entrada|sinal|custa|faltou|falta|preco)\b|\b(?:a vista|em aberto|a receber)\b|\b(?:por|deu)\s+\d+|\b\d+\s*x\s*\d+/;
     const parts = /\b(?:pecas?|shoppcell|na loja)\b/;
-    return payment.test(details) || parts.test(details) || (details === normalized && /\b\d{3,8}\s*$/.test(details));
+    const amountAtEnd = /\b\d{3,8}\s*$/.test(details) && !/\b(?:128|256|512|1024|2048)\s*$/.test(details);
+    return payment.test(details) || (kind === "SERVICO" && parts.test(details)) || (details === normalized && amountAtEnd);
 }
 function salePaymentAmount(sale, key) {
     const amount = brl(sale[key] ?? 0);
     return key === "credit" && sale.installments > 0 ? amount + " · " + sale.installments + "x" : amount;
 }
 function PaymentPreview({ record }) {
-    const payments = salePayments.filter(([key]) => record[key] > 0);
+    const payments = salePayments.filter(([key]) => record[key] > 0 || (key === "trade_in" && record.trade_in_details?.trim()));
     if (!payments.length) return null;
     return h("span", { className: "cash-payment-preview" },
         payments.map(([key, title]) => h("span", { key, className: "cash-payment-preview-item" },
-            h("span", null, title), h("strong", null, salePaymentAmount(record, key)))));
+            h("span", null, title),
+            key === "trade_in" && record.trade_in_details?.trim() && h("span", { className: "cash-payment-preview-device" }, record.trade_in_details.trim()),
+            record[key] > 0 && h("strong", null, salePaymentAmount(record, key)))));
 }
 function DailyPaymentList({ title, titleId, filterId, records, isLoading, loadingText, emptyText, className, listClass, renderRow }) {
     const [filters, setFilters] = useState([]);
@@ -115,7 +118,7 @@ function SaleDetails({ record }) {
     ];
     const detail = (title, value) => h("div", { key: title }, h("dt", null, title), h("dd", null, value));
     return h("div", null,
-        h("p", { className: "cash-detail-product" }, record.product || (record.kind === "SERVICO" ? "Registro de peças" : "Venda sem descrição")),
+        h("p", { className: "cash-detail-product" }, record.product || (record.note?.trim() ? "Observação" : record.kind === "SERVICO" ? "Registro de peças" : "Venda sem descrição")),
         h("dl", { className: "cash-detail-grid" },
             pairs.filter(Boolean).map(([title, value]) => detail(title, value)),
             record.pending_amount > 0 && detail("Valor pendente", brl(record.pending_amount)),
@@ -208,24 +211,30 @@ function CaixaPage() {
     });
     function reviewSale(text, kind = "PRODUTO", parts = "") {
         const setError = kind === "SERVICO" ? setServiceTextError : setSaleTextError;
+        const observation = text.trim().match(/^(?:obs(?:erva[cç][aã]o|erva[cç][oõ]es)?\.?|anota[cç][aã]o)\s*[:=-]\s*(.+)$/is);
+        if (observation) {
+            fillSale({ note: observation[1].trim() }, kind, parts);
+            setError("");
+            return;
+        }
         if (kind === "SERVICO" && (hasServiceAccessory(text.split("=")[0]) || hasServiceAccessory(parts))) {
             setError(serviceAccessoryMessage);
             return;
         }
         try {
             const [description, payment, ...extra] = text.split("=");
-            if (kind === "SERVICO" && !extra.length && !payment?.trim()) {
+            if (!extra.length && !payment?.trim()) {
                 const product = description.trim();
-                if (serviceNeedsInterpretation(product)) {
+                if (launchNeedsInterpretation(product, kind)) {
                     setError("");
                     interpretAI.mutate({ text: product, kind, parts, setError });
                     return;
                 }
                 if (!product && !parts) {
-                    setError("Informe as peças ou descreva a manutenção.");
+                    setError("Descreva o lançamento ou escreva uma observação.");
                     return;
                 }
-                fillSale({ product }, kind, parts);
+                fillSale(kind === "SERVICO" ? { product } : { note: product }, kind, parts);
             } else {
                 fillSale(interpretSale(text), kind, parts);
             }
@@ -259,12 +268,12 @@ function CaixaPage() {
             const pendingAmount = pendingCents / 100;
             const product = sale.product.trim();
             const parts = sale.service_parts?.trim() || "";
+            const note = sale.note.trim();
             const isService = sale.kind === "SERVICO";
-            if (isService && !product && !parts) throw new Error("Informe as peças ou descreva a manutenção.");
-            if (!isService && (!product || (total <= 0 && pendingAmount <= 0))) {
-                throw new Error("Preencha o produto e informe um pagamento ou valor pendente.");
+            if (!product && !note && !(isService && parts)) {
+                throw new Error("Descreva o lançamento ou escreva uma observação.");
             }
-            const values = { ...sale, product, total, pending_amount: pendingAmount, sale_date: date };
+            const values = { ...sale, product, note, total, pending_amount: pendingAmount, sale_date: date };
             if (isService) values.service_parts = parts;
             if (editingSale) {
                 const { error } = await cashStore
@@ -521,11 +530,11 @@ function CaixaPage() {
                 h("button", { type: "button", className: "cash-sale-row", disabled: interpretAI.isPending,
                     onClick: () => showSaleModal("details", record) },
                     h("span", { className: "cash-sale-description" },
-                        h("strong", null, record.product || "Venda sem descrição"),
-                        record.note?.trim() && h("span", { className: "cash-sale-note" }, record.note.trim()),
+                        h("strong", null, record.product || record.note?.trim() || "Venda sem descrição"),
+                        record.product && record.note?.trim() && h("span", { className: "cash-sale-note" }, record.note.trim()),
                         record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
                         h(PaymentPreview, { record })),
-                    h("strong", { className: "cash-sale-amount" }, record.total > 0 || !record.pending_amount ? brl(record.total) : "A receber"),
+                    h("strong", { className: "cash-sale-amount" }, record.total > 0 ? brl(record.total) : record.pending_amount > 0 ? "A receber" : "Sem valor"),
                     h(ArrowRight, { className: "size-4", "aria-hidden": "true" }))),
         }),
         services: h(DailyPaymentList, {
@@ -536,7 +545,7 @@ function CaixaPage() {
                 h("button", { type: "button", className: "cash-service-record", disabled: interpretAI.isPending,
                     onClick: () => showSaleModal("details", record) },
                     h("span", { className: "cash-service-record-body" },
-                        h("strong", null, record.product || "Registro de peças"),
+                        h("strong", null, record.product || record.note?.trim() || "Registro de peças"),
                         record.pending_amount > 0 && h("span", { className: "cash-pending-amount" }, brl(record.pending_amount), " pendente"),
                         record.service_parts?.trim() && h("span", { className: "cash-service-record-parts" },
                             "Peças · ", record.service_parts.trim().split(/\r?\n/).filter((part) => part.trim()).join(" · ")),
