@@ -134,9 +134,7 @@
 .cash-sale-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cash-payment-preview { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-top: .1rem; }
 .cash-payment-preview-item { display: grid; color: var(--muted-foreground); font-size: .72rem; line-height: 1.25; }
-.cash-payment-preview-item strong { font-size: .66rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.cash-payment-preview-trade { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .4rem; }
-.cash-payment-preview-device { max-width: 22rem; overflow-wrap: anywhere; }
+.cash-payment-preview-item strong { max-width: 22rem; overflow-wrap: anywhere; font-size: .66rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .cash-sale-empty { text-align: center; padding: 1.25rem .5rem; }
 .cash-sale-amount { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .cash-dialog {

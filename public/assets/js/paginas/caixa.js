@@ -46,10 +46,13 @@ function PaymentPreview({ record }) {
     const payments = salePayments.filter(([key]) => record[key] > 0 || (key === "trade_in" && record.trade_in_details?.trim()));
     if (!payments.length) return null;
     return h("span", { className: "cash-payment-preview" },
-        payments.map(([key, title]) => h("span", { key, className: "cash-payment-preview-item" + (key === "trade_in" ? " cash-payment-preview-trade" : "") },
-            h("span", null, title),
-            key === "trade_in" && record.trade_in_details?.trim() && h("span", { className: "cash-payment-preview-device" }, record.trade_in_details.trim()),
-            record[key] > 0 && h("strong", null, salePaymentAmount(record, key)))));
+        payments.map(([key, title]) => {
+            const device = key === "trade_in" ? record.trade_in_details?.trim() : "";
+            const amount = record[key] > 0 ? salePaymentAmount(record, key) : "";
+            return h("span", { key, className: "cash-payment-preview-item" },
+                h("span", null, title),
+                h("strong", null, [device, amount].filter(Boolean).join(" · ")));
+        }));
 }
 function DailyPaymentList({ title, titleId, filterId, records, isLoading, loadingText, emptyText, className, listClass, renderRow }) {
     const [filters, setFilters] = useState([]);
